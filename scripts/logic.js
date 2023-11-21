@@ -1,15 +1,18 @@
-
+// api left intentionally in code for ease of use
 let apiKey = "0e03969665ea5e42726942638222f3c0"
-
+// declares latitude and longitude variables
 let lat = "";  
 let lon = "";
 
+// declares variables for the search bar and the search button
 let searchBar = $("#search-input");
 
+// declares html elements for the current weather display
 let weatherNowJumbo = $("<div>").addClass("jumbotron jumbotron-fluid");
 let weatherNowContainer = $("<div>").addClass("container");
 let weatherNowRow = $("<div>").addClass("row");
 let weatherNowCol = $("<div>").css("background-color", "pink");
+
 let weatherNowMapCol = $("<div>");
 
 let weatherNowHeader = $("<h1>");
@@ -22,8 +25,10 @@ let weatherNowDescription = $("<p>");
 let weatherNowWindEl = $("<p>");
 let weatherNowHumidityEl = $("<p>");
 
+// weather object returned by api has 40 data points for weather. This is an offset from 0 for future days
 let j = 6;
 
+// declares an object to store the current weather
 let weatherNow = {
     town: "",
     country: "",
@@ -37,7 +42,7 @@ let weatherNow = {
     lon: ""
 }
 
-
+// declares an array to store the 5 day weather forecast
 let fiveDays = [
     {
         ref: "",
@@ -84,28 +89,31 @@ let fiveDays = [
         humidity: "",
     }
 ]
-
+// declares a complex object to store the current and 5 day weather forecast
 let forecast = {
     current : weatherNow,
     fiveDay : fiveDays
 }
 
+// declares an array to store the search history
 let history = [];
 
+// modifies the search bar
 searchBar.css("width", "60%");
 searchBar.css("margin", "auto");
 
+// declares a function which will run when the search button is clicked
 $("#search-form").on("submit", function(event) {
-    //1
+    //§1. Code in this block takes the value of the search bar and uses it to query the api for the latitude and longitude of the city
 
     event.preventDefault();
     let city = $("#search-input").val();
+    $("#search-input").val("");
     console.log(city);
     let queryURL = "https://api.openweathermap.org/data/2.5/forecast?q="+city+"&appid=" + apiKey;
     
 
 
-    //2
     fetch(queryURL)
     .then(function(response) {
     return response.json(); 
@@ -116,9 +124,9 @@ $("#search-form").on("submit", function(event) {
         console.log(lat);
         lon = geographyData.city.coord.lon;
         console.log(lon);
+        //§2. Code in this block uses the latitude and longitude to query the api for the object which contains info for current and 5 day weather forecast
 
-
-        //3
+        
         let weatherUrl = "https://api.openweathermap.org/data/2.5/forecast?lat="+lat+"&lon="+lon+"&appid=" + apiKey + "&units=metric";
         fetch(weatherUrl)
         .then(function(response) {
@@ -133,7 +141,7 @@ $("#search-form").on("submit", function(event) {
         });
     
 
-                // declares a function which will display the 5 day weather forecast
+                // §3. getCurrentWeather. Takes the object returned from api call and renders a map and current weather info into html elements
                 function getCurrentWeather(weatherObject){
 
                     $("#map-container").empty();
@@ -185,7 +193,7 @@ $("#search-form").on("submit", function(event) {
 
                     }
 
-
+                // §4. getFiveDayWeather. Takes the object returned from api call and renders a 5 day weather forecast into html elements
                 function getFiveDayWeather(weatherObject) {
                 let container = $("<div>");
                 container.addClass("container");
@@ -193,14 +201,12 @@ $("#search-form").on("submit", function(event) {
                 $("body").append(container);
                 
                 
-                // let weatherDisplay = $("<div>");
-                // weatherDisplay.addClass("justify-content-around");
-                
                 
                 let weatherStats = $("<div>");
                 weatherStats.addClass("d-flex flex-wrap justify-content-between p-3");
                 weatherStats.addClass("weather-info");
 
+                // for loop to create 5 day forecast
 
                 for (let i = 0; i < 5; i++) {
                     
@@ -232,7 +238,7 @@ $("#search-form").on("submit", function(event) {
                 
                     let icon = $("<img>");
                     icon.attr("data-imgid", i);
-                    icon.css("width", "50%");
+                    icon.css("width", "20%");
                     forecast.fiveDay[i].icon = weatherObject.list[j].weather[0].icon + ".png";
                     icon.attr("src", "http://openweathermap.org/img/w/" + forecast.fiveDay[i].icon);
                     fiveDayDivs.append(icon);
@@ -257,7 +263,6 @@ $("#search-form").on("submit", function(event) {
 
                     weatherStats.append(fiveDayDivs);
                     $("#five-day-view").append(weatherStats);
-                    // $("#five-day-view").append(weatherDisplay);
                     
                     j = j + 7;
                     
@@ -272,8 +277,10 @@ $("#search-form").on("submit", function(event) {
 
             }   
             
+            // §5. displayHistory. Takes the search history array and renders it into html elements dependant on history item selected - limit of most recent 5.
             function displayHistory(){
                 $("#search-history").empty();
+                $("#search-history").append("<h3>Search History</h3>");
                 for(let i = 0; (i <history.length && i<5); i++){
                 if(history[i] != undefined && history[i] != null){
                     let historySubDiv = $("<div>");
@@ -281,6 +288,7 @@ $("#search-form").on("submit", function(event) {
                     historyButton.addClass("btn btn-outline-secondary");
                     historyButton.attr("data-name", history[i]);
                     historyButton.text(history[i]);
+                    historyButton.css("width", "100%");
 
                     historySubDiv.append(historyButton);
                     $("#search-history").append(historySubDiv);
@@ -288,6 +296,8 @@ $("#search-form").on("submit", function(event) {
             }
 
         }
+
+        // §6. Event listener for search history buttons. Takes the data-name attribute of the button clicked and uses it to retrieve the weather object from local storage and render it into html elements    
 
         $("#search-history").on("click", function(event){
             event.preventDefault();
@@ -326,9 +336,9 @@ $("#search-form").on("submit", function(event) {
                 date.text(weatherHistory.fiveDay[counter].date);
                 let temp = $("p[data-tempid="+counter+"]");
                 temp.text(weatherHistory.fiveDay[counter].temp + "°C");
-                // $("img[data-iconid="+counter+"]").attr("src", "");
+                $("img[data-imgid="+counter+"]").attr("src", "");
                 // console.log(weatherHistory.fiveDay[counter].icon);
-                $("img[data-iconid="+counter+"]").attr("src", "http://openweathermap.org/img/w/" + weatherHistory.fiveDay[counter].icon);
+                $("img[data-imgid="+counter+"]").attr("src", "http://openweathermap.org/img/w/" + weatherHistory.fiveDay[counter].icon);
                 let description = $("p[data-descid="+counter+"]");
                 description.text(weatherHistory.fiveDay[counter].description);
                 let wind = $("p[data-windid="+counter+"]");
@@ -344,10 +354,3 @@ $("#search-form").on("submit", function(event) {
         })
 
     
-
-
-
-        //    function storeForecast(forecastIn){
-        //         history.push(forecastIn);
-        //    }
-            
