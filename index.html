@@ -23,26 +23,28 @@
   </header>
   <!-- max-width for ultra wide resolutions -->
     <div class="container-fluid" style="max-width: 1400px">
-        <div class="row p-4">
+        <div class="row">
         <div id="map-container"></div>
-            <form id="search-form" class="form col-md-3">
-                <div class="d-inline input-group p-3">
-                    <input type="text" id="search-input" placeholder="City Name" aria-label="Form Heading" aria-describedby="basic-addon"></input>
-                    <div class="input-group-append d-inline">
-                        <button type="submit" class="btn btn-primary" id="search-button" aria-label="submit search">
-                        Search
-                        </button>
-                    </div>
+            <form id="search-form" class="form">
+                <div class="input-group p-2">
+                
+                        <div class="d-flex input-group mb-3 align-items-center justify-content-center">
+                          <input class="border-dark"type="text" id="search-input"  placeholder="City / Town" aria-describedby="basic-addon">
+                          <button class="btn btn-outline-secondary" type="submit" aria-label="submit search" id="search-button">Search</button>
+                        </div>
+                        
+                        
+                    
                 </div>
             </form>
         </div>
         <div class="row">
-            <div class="col-2"id="search-history"></div>
-            <div class="col-5" id="weather-now"></div>
-            <div class="col-5 w-auto" id="map-pane"></div>
+            <div class="col-2 border-end"id="search-history"></div>
+            <div class="col-5 p-3" id="weather-now"></div>
+            <div class="col-5 w-auto border-dark" id="map-pane"></div>
         </div>
         <div class="row">
-            <div class="col-2"></div>
+            <div class="col-2 border-end"></div>
             <div class="col-10" id="five-day-view"></div>
         </div>
     </div>

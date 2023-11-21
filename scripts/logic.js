@@ -11,13 +11,14 @@ let searchBar = $("#search-input");
 let weatherNowJumbo = $("<div>").addClass("jumbotron jumbotron-fluid");
 let weatherNowContainer = $("<div>").addClass("container");
 let weatherNowRow = $("<div>").addClass("row");
-let weatherNowCol = $("<div>").css("background-color", "pink");
+let weatherNowCol = $("<div>")
 
 let weatherNowMapCol = $("<div>");
 
 let weatherNowHeader = $("<h1>");
+let weatherNowTime = $("<h3></h3>");
 let weatherNowTempDiv = $("<div>").css("display", "flex");
-let weatherNowTempEl = $("<p>");
+let weatherNowTempEl = $("<h3>");
 
 let weathernNowIcon = $("<img>");
 let weatherNowDescription = $("<p>");
@@ -25,9 +26,13 @@ let weatherNowDescription = $("<p>");
 let weatherNowWindEl = $("<p>");
 let weatherNowHumidityEl = $("<p>");
 
+let thermometerIcon = $("<i>").addClass("bi bi-thermometer-half");
+let windIcon = $("<i>").addClass("bi bi-wind");
+let humidityIcon = $("<i>").addClass("bi bi-moisture");
+let descriptionIcon = $("<i>").addClass("bi bi-cloud-sun");
+
 // weather object returned by api has 40 data points for weather. This is an offset from 0 for future days
 let j = 6;
-
 // declares an object to store the current weather
 let weatherNow = {
     town: "",
@@ -100,12 +105,13 @@ let history = [];
 
 // modifies the search bar
 searchBar.css("width", "60%");
-searchBar.css("margin", "auto");
+searchBar.css("line-height", "2rem");
+// searchBar.css("margin", "auto");
+
 
 // declares a function which will run when the search button is clicked
 $("#search-form").on("submit", function(event) {
     //§1. Code in this block takes the value of the search bar and uses it to query the api for the latitude and longitude of the city
-
     event.preventDefault();
     let city = $("#search-input").val();
     $("#search-input").val("");
@@ -143,15 +149,17 @@ $("#search-form").on("submit", function(event) {
 
                 // §3. getCurrentWeather. Takes the object returned from api call and renders a map and current weather info into html elements
                 function getCurrentWeather(weatherObject){
-
                     $("#map-container").empty();
                     $("#weather-now").empty();
                     $("#five-day-view").empty();
+                    weatherNowCol.empty();
+                    weatherNowTempDiv.empty();
+                    weatherNowDescription.empty();
                     j=6;
 
                     forecast.current.town = weatherObject.city.name;
                     forecast.current.country = weatherObject.city.country;
-                    forecast.current.date = dayjs(weatherObject.list[0].dt_txt).format('dddd DD MMMM YYYY HH:mm');
+                    forecast.current.date = dayjs(weatherObject.list[0].dt_txt).format('dddd DD MMMM YYYY');
                     forecast.current.temp = weatherObject.list[0].main.temp;
                     forecast.current.icon = "http://openweathermap.org/img/w/" + weatherObject.list[0].weather[0].icon + ".png";
                     forecast.current.description = weatherObject.list[0].weather[0].description;
@@ -168,28 +176,34 @@ $("#search-form").on("submit", function(event) {
                         }).addTo(map);
 
 
-                        weatherNowHeader.text(forecast.current.town + ", " + forecast.current.country + " " + forecast.current.date);
-                        weatherNowTempDiv.text(forecast.current.temp + "°C");
+                    weatherNowHeader.text(forecast.current.town + ", " + forecast.current.country);
+                        weatherNowTime.text(forecast.current.date);
+                        weatherNowTempDiv.text(" "+forecast.current.temp + " °C");
                         weathernNowIcon.attr("src", forecast.current.icon);
-                        weatherNowDescription.text(forecast.current.description);
-                        weatherNowWindEl.text("Wind Speed: " + forecast.current.wind + "m/s");
-                        weatherNowHumidityEl.text("Humidity: " + forecast.current.humidity + "%");
+                        weatherNowDescription.text(" "+forecast.current.description);
+                        weatherNowWindEl.text(" Wind Speed: " + forecast.current.wind + " m/s");
+                        weatherNowHumidityEl.text(" Humidity: " + forecast.current.humidity + " %");
                     
                     $("#weather-now").append(weatherNowCol);
                     $("#map-pane").append(weatherNowMapCol);
                    
 
                     weatherNowCol.append(weatherNowHeader);
+                    weatherNowCol.append(weatherNowTime);
+                    weatherNowTempDiv.prepend(thermometerIcon);
                     weatherNowCol.append(weatherNowTempDiv);  
                     weatherNowCol.append(weathernNowIcon);
+
+                    weatherNowDescription.prepend(descriptionIcon);
                     weatherNowCol.append(weatherNowDescription);
+                    
+                    weatherNowWindEl.prepend(windIcon);
                     weatherNowCol.append(weatherNowWindEl);
+                    weatherNowHumidityEl.prepend(humidityIcon);
                     weatherNowCol.append(weatherNowHumidityEl);
                     
                     weatherNowMapCol.append(mapContainer);
-
                     
-
 
                     }
 
@@ -203,7 +217,7 @@ $("#search-form").on("submit", function(event) {
                 
                 
                 let weatherStats = $("<div>");
-                weatherStats.addClass("d-flex flex-wrap justify-content-between p-3");
+                weatherStats.addClass("d-flex flex-wrap justify-content-between p-3 text-center");
                 weatherStats.addClass("weather-info");
 
                 // for loop to create 5 day forecast
@@ -216,7 +230,7 @@ $("#search-form").on("submit", function(event) {
                     
                     
                     
-                    fiveDayDivs.addClass("col-2");
+                    fiveDayDivs.addClass("col-2 align-items-center border rounded");
                     fiveDayDivs.addClass("day"+i);
                     fiveDayDivs.addClass("card");
                     // fiveDayDivs.attr("data-id", i);
@@ -324,16 +338,42 @@ $("#search-form").on("submit", function(event) {
 
             
 
-            weatherNowHeader.text(weatherHistory.current.town + ", " + weatherHistory.current.country + " " + weatherHistory.current.date);
-                        weatherNowTempDiv.text(weatherHistory.current.temp + "°C");
+            weatherNowHeader.text(weatherHistory.current.town + ", " + weatherHistory.current.country);
+                    weatherNowTempDiv.prepend(thermometerIcon);
+                    weatherNowDescription.prepend(descriptionIcon);
+                    weatherNowWindEl.prepend(windIcon);
+                    weatherNowHumidityEl.prepend(humidityIcon);
+                        weatherNowTime.text(weatherHistory.current.date);
+                        weatherNowTempDiv.text(" "+weatherHistory.current.temp + " °C");
                         weathernNowIcon.attr("src", weatherHistory.current.icon);
-                        weatherNowDescription.text(weatherHistory.current.description);
-                        weatherNowWindEl.text("Wind Speed: " + weatherHistory.current.wind + "m/s");
-                        weatherNowHumidityEl.text("Humidity: " + weatherHistory.current.humidity + "%");
+                        weatherNowDescription.text(" "+weatherHistory.current.description);
+                        weatherNowWindEl.text(" Wind Speed: " + weatherHistory.current.wind + " m/s");
+                        weatherNowHumidityEl.text(" Humidity: " + weatherHistory.current.humidity + " %");
+
+                        weatherNowCol.append(weatherNowHeader);
+                        weatherNowCol.append(weatherNowTime);
+                        weatherNowTempDiv.prepend(thermometerIcon);
+                        weatherNowCol.append(weatherNowTempDiv);  
+                        weatherNowCol.append(weathernNowIcon);
+
+                        weatherNowDescription.prepend(descriptionIcon);
+                        weatherNowCol.append(weatherNowDescription);
+                    
+                        weatherNowWindEl.prepend(windIcon);
+                        weatherNowCol.append(weatherNowWindEl);
+                        weatherNowHumidityEl.prepend(humidityIcon);
+                        weatherNowCol.append(weatherNowHumidityEl);
+                    
+                        // weatherNowMapCol.append(mapContainer);
+
+
+
+
 
             for(let counter = 0; counter < 5; counter++){
                 let date = $("p[data-dateid="+counter+"]");
                 date.text(weatherHistory.fiveDay[counter].date);
+                console.log(weatherHistory);
                 let temp = $("p[data-tempid="+counter+"]");
                 temp.text(weatherHistory.fiveDay[counter].temp + "°C");
                 $("img[data-imgid="+counter+"]").attr("src", "");
