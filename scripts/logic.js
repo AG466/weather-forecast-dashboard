@@ -9,22 +9,17 @@ let searchBar = $("#search-input");
 let weatherNowJumbo = $("<div>").addClass("jumbotron jumbotron-fluid");
 let weatherNowContainer = $("<div>").addClass("container");
 let weatherNowRow = $("<div>").addClass("row");
-
-
 let weatherNowCol = $("<div>").css("background-color", "pink");
 let weatherNowMapCol = $("<div>");
 
 let weatherNowHeader = $("<h1>");
-
 let weatherNowTempDiv = $("<div>").css("display", "flex");
 let weatherNowTempEl = $("<p>");
 
 let weathernNowIcon = $("<img>");
-
 let weatherNowDescription = $("<p>");
 
 let weatherNowWindEl = $("<p>");
-
 let weatherNowHumidityEl = $("<p>");
 
 let j = 6;
@@ -59,7 +54,7 @@ let fiveDays = [
         icon: "",
         description: "",
         wind: "",
-        humidity: ""
+        humidity: "",
     },
     {
         ref: "",
@@ -68,7 +63,7 @@ let fiveDays = [
         icon: "",
         description: "",
         wind: "",
-        humidity: ""
+        humidity: "",
     },
     {
         ref: "",
@@ -77,7 +72,7 @@ let fiveDays = [
         icon: "",
         description: "",
         wind: "",
-        humidity: ""
+        humidity: "",
     },
     {
         ref: "",
@@ -86,8 +81,7 @@ let fiveDays = [
         icon: "",
         description: "",
         wind: "",
-        humidity: ""
-    
+        humidity: "",
     }
 ]
 
@@ -96,16 +90,13 @@ let forecast = {
     fiveDay : fiveDays
 }
 
-var history = [];
+let history = [];
 
 searchBar.css("width", "60%");
 searchBar.css("margin", "auto");
 
 $("#search-form").on("submit", function(event) {
     //1
-    forecast.current = weatherNow;
-    forecast.fiveDay = fiveDays;
-
 
     event.preventDefault();
     let city = $("#search-input").val();
@@ -133,7 +124,6 @@ $("#search-form").on("submit", function(event) {
         .then(function(response) {
             return response.json(); 
             }).then(function (weatherInfo) {
-
                 getCurrentWeather(weatherInfo);
                 getFiveDayWeather(weatherInfo);
                 console.log(weatherInfo);
@@ -190,7 +180,6 @@ $("#search-form").on("submit", function(event) {
                     
                     weatherNowMapCol.append(mapContainer);
 
-                    localStorage.setItem(forecast.current.town, JSON.stringify(forecast));
                     
 
 
@@ -224,36 +213,44 @@ $("#search-form").on("submit", function(event) {
                     fiveDayDivs.addClass("col-2");
                     fiveDayDivs.addClass("day"+i);
                     fiveDayDivs.addClass("card");
+                    // fiveDayDivs.attr("data-id", i);
                     
                     forecast.fiveDay[i].ref = "day" + i;
                     
                     
                     let date = $("<p>");
+                    date.attr("data-dateid", i);
                     forecast.fiveDay[i].date = dayjs(weatherObject.list[j].dt_txt).format('dddd DD MMMM YYYY HH:mm');
                     date.text(forecast.fiveDay[i].date);
                     fiveDayDivs.append(date);
                 
                     let temp = $("<p>");
+                    temp.attr("data-tempid", i);
                     forecast.fiveDay[i].temp = Math.round(weatherObject.list[j].main.temp);
                     temp.text(forecast.fiveDay[i].temp + "°C");
                     fiveDayDivs.append(temp);
                 
                     let icon = $("<img>");
+                    icon.attr("data-imgid", i);
                     icon.css("width", "50%");
                     forecast.fiveDay[i].icon = weatherObject.list[j].weather[0].icon + ".png";
                     icon.attr("src", "http://openweathermap.org/img/w/" + forecast.fiveDay[i].icon);
                     fiveDayDivs.append(icon);
 
                     let description = $("<p>");
+                    description.attr("data-descid", i)
                     forecast.fiveDay[i].description = weatherObject.list[j].weather[0].description;
+                    description.text(forecast.fiveDay[i].description);
                     fiveDayDivs.append(description);
 
                     let wind = $("<p>");
+                    wind.attr("data-windid", i)
                     forecast.fiveDay[i].wind ="Wind Speed: " +weatherObject.list[j].wind.speed + "m/s";
                     wind.text(forecast.fiveDay[i].wind);
                     fiveDayDivs.append(wind);
-
+                    
                     let humidity = $("<p>");
+                    humidity.attr("data-humid", i)
                     forecast.fiveDay[i].humidity = "Humidity: " + weatherObject.list[j].main.humidity + "%";
                     humidity.text(forecast.fiveDay[i].humidity);
                     fiveDayDivs.append(humidity);
@@ -263,46 +260,94 @@ $("#search-form").on("submit", function(event) {
                     // $("#five-day-view").append(weatherDisplay);
                     
                     j = j + 7;
-                    console.log(j);
-
-                    
                     
                     }
+                    
                 }
+                history.unshift(forecast.current.town);
+                console.log(history);
+                displayHistory();
+                localStorage.setItem(forecast.current.town, JSON.stringify(forecast));
 
 
-            //     if(history.length ===0 ){
-            //         history[]
-            //     }else if(history.length > 0 && history.length < 5){
-            //         history.unshift(forecast);
-            //         localStorage.setItem("history", JSON.stringify(history));
-            // } else {
-            //     history.pop();
-            //     history.unshift(forecast);
-            //     localStorage.setItem("history", JSON.stringify(history));
-            //     }
-
-            //     renderButton();
-            //     }
+            }   
             
-
-
-            
-
-            
-            function renderButton(){
-                for (let i = 0; i < history.length; i++) {
+            function displayHistory(){
+                $("#search-history").empty();
+                for(let i = 0; (i <history.length && i<5); i++){
+                if(history[i] != undefined && history[i] != null){
+                    let historySubDiv = $("<div>");
                     let historyButton = $("<button>");
-                    historyButton.addClass("btn btn-secondary");
-                    historyButton.text(history[i].current.town);
-                    historyButton.attr("id", history[i].current.town);
-                    $("#search-history").append(historyButton);
-                }   
+                    historyButton.addClass("btn btn-outline-secondary");
+                    historyButton.attr("data-name", history[i]);
+                    historyButton.text(history[i]);
+
+                    historySubDiv.append(historyButton);
+                    $("#search-history").append(historySubDiv);
+                }
             }
 
-                
         }
 
-        function clearFiveDay(){
-            $("#five-day-view").empty();
-        }
+        $("#search-history").on("click", function(event){
+            event.preventDefault();
+
+            
+            let city = event.target.getAttribute("data-name");
+            let weatherHistory = JSON.parse(localStorage.getItem(city));
+            console.log(weatherHistory);
+
+            $("#map-container").empty();
+
+            // var mapContainer = $("#map-container").css({width: '500px', height: '400px' });
+            $("<div id='map' style='width: 100%; height: 100%;'></div>").appendTo("#map-container");
+            
+            var map = L.map('map').setView([weatherHistory.current.lat, weatherHistory.current.lon], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            }).addTo(map);
+
+            $("#weather-now").append(weatherNowCol);
+            $("#map-pane").append(weatherNowMapCol);
+           
+
+            
+
+            
+
+            weatherNowHeader.text(weatherHistory.current.town + ", " + weatherHistory.current.country + " " + weatherHistory.current.date);
+                        weatherNowTempDiv.text(weatherHistory.current.temp + "°C");
+                        weathernNowIcon.attr("src", weatherHistory.current.icon);
+                        weatherNowDescription.text(weatherHistory.current.description);
+                        weatherNowWindEl.text("Wind Speed: " + weatherHistory.current.wind + "m/s");
+                        weatherNowHumidityEl.text("Humidity: " + weatherHistory.current.humidity + "%");
+
+            for(let counter = 0; counter < 5; counter++){
+                let date = $("p[data-dateid="+counter+"]");
+                date.text(weatherHistory.fiveDay[counter].date);
+                let temp = $("p[data-tempid="+counter+"]");
+                temp.text(weatherHistory.fiveDay[counter].temp + "°C");
+                // $("img[data-iconid="+counter+"]").attr("src", "");
+                // console.log(weatherHistory.fiveDay[counter].icon);
+                $("img[data-iconid="+counter+"]").attr("src", "http://openweathermap.org/img/w/" + weatherHistory.fiveDay[counter].icon);
+                let description = $("p[data-descid="+counter+"]");
+                description.text(weatherHistory.fiveDay[counter].description);
+                let wind = $("p[data-windid="+counter+"]");
+                wind.text(weatherHistory.fiveDay[counter].wind);
+                let humidity = $("p[data-humid="+counter+"]");
+                humidity.text(weatherHistory.fiveDay[counter].humidity);
+            }
+            
+
+            
+            
+        
+        })
+
+    
+
+
+
+        //    function storeForecast(forecastIn){
+        //         history.push(forecastIn);
+        //    }
+            
